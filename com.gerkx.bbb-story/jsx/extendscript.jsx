@@ -17,17 +17,11 @@ function clipObj(clip) {
         nodeId: clip.nodeId,
         outPoint: clip.outPoint,
         start: clip.start,
-        // projectItem: {
-        //     name: clip.projectItem.name,
-        //     nodeId: clip.projectItem.nodeId,
-        //     // treePath: clip.projectItem.treePath
-        // }
     };
     if (clip.projectItem) {
         obj.projectItem = {
             name: clip.projectItem.name,
             nodeId: clip.projectItem.nodeId,
-            // treePath: clip.projectItem.treePath
         };
     }
     return obj

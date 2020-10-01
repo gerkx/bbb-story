@@ -1,7 +1,7 @@
 <template>
     <v-container>
             <NameSeqModal 
-                linealName="lineal.name" 
+                :linealName="lineal.name" 
                 :modal="animaticSequenceNameModal"
                 @cancel="toggleAnimaticSequenceNameModal"
                 @ok="createAnimatic"
@@ -11,6 +11,7 @@
                 :loading="linealSequenceLoading"
                 :sequences="sequences"
                 @cancel="toggleLinealSequenceModal"
+                @ok="setLineal"
             />
             <v-row class="mb-2 px-2">
                 <v-btn 
@@ -51,6 +52,7 @@
                     class="picker"
                     block 
                     outlined 
+                    @click="toggleAnimaticSequenceNameModal"
                 >
                     <v-icon class="pr-2" small>mdi-wrench</v-icon>
                     <span>Hacer animatic</span>
@@ -69,7 +71,8 @@ import ChooseLinealModal from '../components/modals/ChooseLinealModal';
 
 import { clr } from '../logic/colors';
 import { chooseFile } from '../logic/fileIO';
-import { getSequences } from '../logic/premiereSeq'
+import { getSequences } from '../logic/premiereSeq';
+// import { xml2obj } from '../logic/xml'
 
 
 export default {
@@ -120,7 +123,7 @@ export default {
                 color: clr.neutral    
             }
             return {
-                name: this.linealSequence,
+                name: this.linealSequence.name,
                 color: this.colors[4]    
             }
         },
@@ -130,14 +133,6 @@ export default {
             } else {
                 return false
             }
-        }
-    },
-    watch: {
-        xmlPath: function(val) {
-            console.log(val)
-        },
-        animaticSequenceNameModal: function(val) {
-            console.log(val)
         }
     },
     methods: {
@@ -178,6 +173,14 @@ export default {
                 this.sequences = seqArr;
                 this.toggleLinealSequenceLoading();
             }
+        },
+        setLineal(sequenceID) {
+            const linealSeq = this.sequences.find(seq => {
+                return seq.sequenceID == sequenceID
+            })
+            console.log(linealSeq)
+            if (linealSeq) this.linealSequence = linealSeq;
+            this.toggleLinealSequenceModal();
         }
     }
     
