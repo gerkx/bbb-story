@@ -1020,7 +1020,14 @@
 					<locked>FALSE</locked>
 					<outputchannelindex>1</outputchannelindex>
 				</track>
-				<track TL.SQTrackAudioKeyframeStyle="0" TL.SQTrackShy="0" TL.SQTrackExpandedHeight="25" TL.SQTrackExpanded="0" MZ.TrackTargeted="0" PannerCurrentValue="0.5" PannerIsInverted="true" PannerStartKeyframe="-91445760000000000,0.5,0,0,0,0,0,0" PannerName="Equilibrio" currentExplodedTrackIndex="1" totalExplodedTrackCount="2" premiereTrackType="Stereo">
+				<track TL.SQTrackAudioKeyframeStyle="0" TL.SQTrackShy="0" TL.SQTrackExpandedHeight="25" TL.SQTrackExpanded="0" MZ.TrackTargeted="0" PannerCurrentValue="0.5" PannerIs			<out>-1</out>
+			</marker>
+		<labels>
+			<label2>Forest</label2>
+		</labels>
+	</sequence>
+</xmeml>
+lodedTrackCount="2" premiereTrackType="Stereo">
 					<enabled>TRUE</enabled>
 					<locked>FALSE</locked>
 					<outputchannelindex>2</outputchannelindex>
@@ -1051,5 +1058,8 @@
 		<labels>
 			<label2>Forest</label2>
 		</labels>
+	</sequence>
+</xmeml>
+	</labels>
 	</sequence>
 </xmeml>

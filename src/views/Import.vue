@@ -1,25 +1,57 @@
 <template>
     <v-container>
+            <NameSeqModal 
+                linealName="lineal.name" 
+                :modal="animaticSequenceNameModal"
+                @cancel="toggleAnimaticSequenceNameModal"
+                @ok="createAnimatic"
+            />
+            <ChooseLinealModal
+                :modal="linealSequenceModal"
+                :loading="linealSequenceLoading"
+                :sequences="sequences"
+                @cancel="toggleLinealSequenceModal"
+            />
             <v-row class="mb-2 px-2">
-                <v-btn block class="picker" :color=xml.color >
+                <v-btn 
+                    class="picker" 
+                    :color=xml.color 
+                    block 
+                    @click="chooseXMLFile"
+                >
                     <v-icon class="pr-2">mdi-xml</v-icon>
                     <span>{{xml.name}}</span>
                 </v-btn>
             </v-row>
             <v-row class="mb-2 px-2">
-                <v-btn block class="picker" :color=video.color >
+                <v-btn 
+                    class="picker" 
+                    :color=video.color 
+                    block
+                    @click="chooseVideoFile"
+                >
                     <v-icon class="pr-2">mdi-video</v-icon>
                     <span>{{video.name}}</span>
                 </v-btn>
             </v-row>
             <v-row class="mb-2 px-2">
-                <v-btn block class="picker" :color=lineal.color >
+                <v-btn 
+                    class="picker" 
+                    :color=lineal.color 
+                    block 
+                    @click="chooseLineal"
+                >
                     <v-icon class="pr-2">mdi-file-video</v-icon>
                     <span>{{lineal.name}}</span>
                 </v-btn>
             </v-row>
             <v-row class="mb-2 px-2" justify="center">
-                <v-btn :disabled="!enableCreate" block outlined class="picker">
+                <v-btn 
+                    :disabled="!enableCreate" 
+                    class="picker"
+                    block 
+                    outlined 
+                >
                     <v-icon class="pr-2" small>mdi-wrench</v-icon>
                     <span>Hacer animatic</span>
                 </v-btn>
@@ -29,30 +61,47 @@
 </template>
 
 <script>
-import { clr } from '../logic/colors'
+// eslint-disable-next-line no-undef
+const path = cep_node.require('path')
+
+import NameSeqModal from '../components/modals/NameSeqModal';
+import ChooseLinealModal from '../components/modals/ChooseLinealModal';
+
+import { clr } from '../logic/colors';
+import { chooseFile } from '../logic/fileIO';
+import { getSequences } from '../logic/premiereSeq'
+
+
 export default {
     name: 'Import',
     components: {
-
+        NameSeqModal,
+        ChooseLinealModal,
     },
+    // mounted () {
+    //     console.log(this.lineal.name)
+    // },
     data: () => ({
         valid: false,
         xmlPath: null,
         videoPath: null,
+        sequences: [],
         linealSequence: null,
+        linealSequenceModal: false,
+        linealSequenceLoading: false,
         animaticSequenceName: null,
+        animaticSequenceNameModal: false,
         colors: clr.colors
     }),
     computed: {
         xml() {
-            console.log(clr.ok)
             if (!this.xmlPath) return {
                 name: "Archivo de XML",
                 color: clr.neutral
             }
             return {
-                name: this.xmlPath,
-                color: clr.ok    
+                name: path.basename(this.xmlPath),
+                color: this.colors[6]    
             }
         },
         video() {
@@ -61,8 +110,8 @@ export default {
                 color: clr.neutral
             }
             return {
-                name: this.videoPath,
-                color: clr.ok
+                name: path.basename(this.videoPath),
+                color: this.colors[11]
             }
         },
         lineal() {
@@ -72,7 +121,7 @@ export default {
             }
             return {
                 name: this.linealSequence,
-                color: clr.ok    
+                color: this.colors[4]    
             }
         },
         enableCreate() {
@@ -86,17 +135,56 @@ export default {
     watch: {
         xmlPath: function(val) {
             console.log(val)
+        },
+        animaticSequenceNameModal: function(val) {
+            console.log(val)
         }
     },
     methods: {
-
+        toggleAnimaticSequenceNameModal() {
+            this.animaticSequenceNameModal = !this.animaticSequenceNameModal;
+        },
+        toggleLinealSequenceModal() {
+            this.linealSequenceModal = !this.linealSequenceModal;
+        },
+        toggleLinealSequenceLoading() {
+            this.linealSequenceLoading = !this.linealSequenceLoading;
+        },
+        createAnimatic(seqName) {
+            this.toggleAnimaticSequenceNameModal()
+            this.animaticSequenceName = seqName
+            console.log(this.animaticSequenceName)
+        },
+        chooseXMLFile() {
+            const xmlPath = chooseFile(['.xml', 'xml']);
+            if (xmlPath && path.extname(xmlPath) === '.xml'){
+                this.xmlPath = xmlPath
+            }
+        },
+        chooseVideoFile() {
+            const ext = ['.mp4', '.mov', '.m4v']
+            const vidPath = chooseFile(ext)
+            if (vidPath &&  ext.includes(path.extname(vidPath))){
+                this.videoPath = vidPath
+            }
+        },
+        async chooseLineal() {
+            this.toggleLinealSequenceLoading();
+            this.toggleLinealSequenceModal();
+            const seqArr = await getSequences()
+                .catch(err => console.log(err));
+            // const seqArr = []
+            if (seqArr) {
+                this.sequences = seqArr;
+                this.toggleLinealSequenceLoading();
+            }
+        }
     }
     
 }
 </script>
 
 <style lang="scss" scoped>
-// $btn-text-transform: none !default;
     .picker {
         text-transform: none;
     }

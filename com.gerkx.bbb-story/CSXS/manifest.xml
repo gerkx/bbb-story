@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<ExtensionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ExtensionBundleId="com.gerkx.sommelier" ExtensionBundleVersion="1.0" Version="6.0">
+    <ExtensionList>
+		<Extension Id="com.gerkx.bbb-story.extension1" Version="1.0" />
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+			<Host Name="PPRO" Version="9.0" />
+		</HostList>
+		<LocaleList>
+			<Locale Code="All" />
+		</LocaleList>
+		<RequiredRuntimeList>
+			<RequiredRuntime Name="CSXS" Version="9.0" />
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+
+	<DispatchInfoList>
+		<Extension Id="com.gerkx.bbb-story.extension1">
+			<DispatchInfo >
+				<Resources>
+                    <MainPath>./index-dev.html</MainPath>
+					<ScriptPath>./jsx/extendscript.jsx</ScriptPath>
+                    <CEFCommandLine>
+						<Parameter>--enable-speech-input</Parameter>
+						<Parameter>--enable-media-stream</Parameter>
+						<Parameter>--enable-nodejs</Parameter>
+						<Parameter>--mixed-context</Parameter>
+                    </CEFCommandLine>
+                </Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Panel</Type>
+					<Menu>Story -> Animatic</Menu>
+					<Geometry>
+						<Size>
+							<Height>100</Height>
+							<Width>250</Width>
+						</Size>
+						<MaxSize>
+							<Height>500</Height>
+							<Width>500</Width>
+						</MaxSize>
+						<MinSize>
+							<Height>100</Height>
+							<Width>250</Width>
+						</MinSize>
+					</Geometry>
+				</UI>
+			</DispatchInfo>
+		</Extension>
+	</DispatchInfoList>
+</ExtensionManifest>
