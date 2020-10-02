@@ -1,5 +1,6 @@
 <template>
     <v-container>
+            <v-btn @click="test">test</v-btn>
             <NameSeqModal 
                 :linealName="lineal.name" 
                 :modal="animaticSequenceNameModal"
@@ -71,7 +72,7 @@ import ChooseLinealModal from '../components/modals/ChooseLinealModal';
 
 import { clr } from '../logic/colors';
 import { chooseFile } from '../logic/fileIO';
-import { getSequences } from '../logic/premiereSeq';
+import { getSequences, createAnimaticSeq } from '../logic/premiereSeq';
 // import { xml2obj } from '../logic/xml'
 
 
@@ -181,6 +182,11 @@ export default {
             console.log(linealSeq)
             if (linealSeq) this.linealSequence = linealSeq;
             this.toggleLinealSequenceModal();
+        },
+        test() {
+            console.log(this.linealSequence)
+            const p = "F:/story/MM_138_cajas_de_Carton_Cl_v1.xml"
+            createAnimaticSeq(p, this.linealSequence)
         }
     }
     

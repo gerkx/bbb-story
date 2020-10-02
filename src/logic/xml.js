@@ -2,32 +2,37 @@
 const fs = cep_node.require('fs');
 // const path = require('path');
 // eslint-disable-next-line no-undef
-const parser = require('xml2json');
+// const parser = require('xml2json-light');
+// var convert = require('xml-js');
+var parser = require('fast-xml-parser');
 // const parser = cep_node.require('xml2json');
 // const { toJson } = require('xml2json')
 // import { toJson } from 'xml2json'
 
 
 
-export const chooseXMLFile = () => {
-    const opts = [
-        false,
-        false,
-        "Cargar una secuencia en XML",
-        '',
-        ['.xml', '.XML']
-    ];
-    const loc = window.cep.fs.showOpenDialog(...opts)
-    if (loc.err !== 0) return console.log('oops');
-    if (loc) return loc.data[0]
-    return null
-}
+// export const chooseXMLFile = () => {
+//     const opts = [
+//         false,
+//         false,
+//         "Cargar una secuencia en XML",
+//         '',
+//         ['.xml', '.XML']
+//     ];
+//     const loc = window.cep.fs.showOpenDialog(...opts)
+//     if (loc.err !== 0) return console.log('oops');
+//     if (loc) return loc.data[0]
+//     return null
+// }
 
 export const xml2obj = (xmlPath) => {
-    const xml = fs.readFileSync(xmlPath);
-    console.log(xml)
+    const xml = fs.readFileSync(xmlPath, 'utf8');
+    // console.log(typeof xml)
+    // console.log(xml)
     // const obj = "beep"
-    const obj = JSON.parse(parser.toJson(xml)).xmeml.sequence;
+    // const obj = convert.xml2js(xml)
+    const obj = parser.parse(xml, {}, true).xmeml.sequence
+    // const obj = JSON.parse(parser.xml2json(xml)).xmeml.sequence;
     return obj
 }
 
@@ -39,16 +44,18 @@ export const genVideoEdits = (seqObj) => {
         : video.track
     const clips = videoTrack.clipitem;
     let transitions = videoTrack.transitionitem 
+    if (!Array.isArray(transitions)) transitions = [transitions]
     const corrected = clips.map(clip => {
-        let start = parseInt(clip.start, 10);
-        let end = parseInt(clip.end, 10);
-        let duration = parseInt(clip.duration, 10);
+        // console.log(clip)
+        let start = clip.start;
+        let end = clip.end;
+        let duration = clip.duration;
         if (start === -1) {
-            start = parseInt(transitions[0].start, 10)
+            start = transitions[0].start
             transitions.shift()
         }
         if (end === -1) {
-            end = parseInt(transitions[0].start, 10)
+            end = transitions[0].start
         }
         return {
             in: start/fps, 
@@ -62,29 +69,27 @@ export const genVideoEdits = (seqObj) => {
 }
 
 export const genAudioEdits = (seqObj) => {
+    console.log(seqObj)
     const audio = seqObj.media.audio;
     const fps = seqObj.rate.timebase;
     const audioTracks = Array.isArray(audio.track)
         ? audio.track.filter((_, i) => i % 2 === 0).map(x=>x.clipitem)
         : audio.track.clipitem
-    
+
     return audioTracks.map(track => {
+        if (!Array.isArray(track)) track = [track]
         return track.map(clip => {
-            let obj = {
-                start: parseInt(clip.start, 10)/fps,
-                end: parseInt(clip.end, 10)/fps,
-                in: parseInt(clip.in, 10)/fps,
-                out: parseInt(clip.out, 10)/fps,
-                duration: parseInt(clip.duration, 10)/fps,
+            return {
+                start: clip.start/fps,
+                end: clip.end/fps,
+                in: clip.in/fps,
+                out: clip.out/fps,
+                duration: clip.duration/fps,
                 file: {
                     name: clip.file.name,
                     path: clip.file.pathurl
                 }
             }
-            // const filename = path.basename(clip.file.name).split('.')[0]
-            // if (filename === linealSeqName) {
-            // }
-            return obj
         })
     })
 }

@@ -16,39 +16,62 @@ export const getSequences = () => {
 }
 
 
-const findLinealClips = (linealSeq, timeRange) => {
-    const matches = linealSeq.audioClips.forEach((track, idx) => {
-        const matchedClips = track.clips.filter(clip => {
-            //////////////////////////////////////////////////////
-            add in seconds/ticks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ///////////////////////////////////////////////////
-            return clip.start <= timeRange.end && clip.end >= timeRange.start
-        }).map(clip => {
+const trimLinealClips = (linealSeq, timeRange) => {
+    let  clips = []
+    linealSeq.audioTracks.forEach((track, idx) => {
+        track.clips.filter(clip => {
+            return clip.start <= timeRange.end && 
+            clip.end >= timeRange.start
+        }).forEach(clip => {
             if (clip.start < timeRange.start) {
-                clip.in += timeRange.start - clip.start;
+                clip.inPoint += timeRange.start - clip.start;
                 clip.start = timeRange.start;
             }
             if (clip.end > timeRange.end) {
-
+                clip.outPoint -= timeRange.end - clip.end;
+                clip.end = timeRange.end
             }
+            clips.push({
+                ...clip,
+                track: {
+                    name: track.name,
+                    id: track.id,
+                    idx: idx
+                }
+            })
         })
-
-    }) 
+        
+    })
+    return clips
 }
 
 export const createAnimaticSeq = (xmlPath, linealSeq) => {
-    const storySeq = storySeq(xmlPath);
-    const linealClips = [];
-    storySeq.audio.forEach((track) => {
+// export const createAnimaticSeq = (xmlPath) => {
+    const story = storySeq(xmlPath);
+    // console.log(story)
+    const linealChunks = [];
+    const nonLinealChunks = [];
+    story.audio.forEach((track) => {
         track.forEach((clip) => {
             const ext = path.extname(clip.file.name);
             const filename = path.basename(clip.file.name, ext)
             if (filename === linealSeq.name) {
-
-                linealClips.push({
-
-                })
+                linealChunks.push(clip)
+            } else {
+                nonLinealChunks.push(clip)
             }
         })
+    })
+    let linealClips = [];
+    linealChunks.forEach(chunk => {
+        const range = { start: chunk.in, end: chunk.out };
+        linealClips.push(...trimLinealClips(linealSeq, range))
+    })
+    console.log(linealClips)
+    cs.addEventListener('boop', function(evt) {
+        console.log(evt)
+    });
+    cs.evalScript(`testAssemble(${JSON.stringify(linealClips)})`, function() {
+        console.log('payload')
     })
 }

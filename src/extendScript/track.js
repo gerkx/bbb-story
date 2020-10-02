@@ -1,17 +1,18 @@
 export function clipObj(clip) {
     var obj = {
         name: clip.name,
-        duration: clip.duration,
-        end: clip.end,
-        inPoint: clip.inPoint,
+        duration: clip.duration.seconds,
+        end: clip.end.seconds,
+        inPoint: clip.inPoint.seconds,
         nodeId: clip.nodeId,
-        outPoint: clip.outPoint,
-        start: clip.start,
+        outPoint: clip.outPoint.seconds,
+        start: clip.start.seconds,
     }
     if (clip.projectItem) {
         obj.projectItem = {
             name: clip.projectItem.name,
             nodeId: clip.projectItem.nodeId,
+            treePath: clip.projectItem.treePath
         }
     }
     return obj
