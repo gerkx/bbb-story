@@ -16,23 +16,34 @@ export const getSequences = () => {
 }
 
 
-const trimLinealClips = (linealSeq, timeRange) => {
+const trimLinealClips = (linealSeq, range) => {
     let  clips = []
+    
     linealSeq.audioTracks.forEach((track, idx) => {
         track.clips.filter(clip => {
-            return clip.start <= timeRange.end && 
-            clip.end >= timeRange.start
+            return clip.start < range.out && clip.end > range.in
         }).forEach(clip => {
-            if (clip.start < timeRange.start) {
-                clip.inPoint += timeRange.start - clip.start;
-                clip.start = timeRange.start;
+            let subClip = {...clip}
+
+            if (subClip.start < range.in) {
+                const inPointOffset = range.in - subClip.start;
+                
+                subClip.inPoint += inPointOffset;
+                subClip.start = range.start;
             }
-            if (clip.end > timeRange.end) {
-                clip.outPoint -= timeRange.end - clip.end;
-                clip.end = timeRange.end
+             else if (subClip.start > range.in) {
+                const startOffset = subClip.start - range.in;
+                subClip.start = range.start + startOffset
+            }
+            else {
+                subClip.start = range.start
+            }
+            if (subClip.end > range.out) {
+                const outPointOffset = subClip.end - range.out;
+                subClip.outPoint -= outPointOffset
             }
             clips.push({
-                ...clip,
+                ...subClip,
                 track: {
                     name: track.name,
                     id: track.id,
@@ -46,9 +57,7 @@ const trimLinealClips = (linealSeq, timeRange) => {
 }
 
 export const createAnimaticSeq = (xmlPath, linealSeq) => {
-// export const createAnimaticSeq = (xmlPath) => {
     const story = storySeq(xmlPath);
-    // console.log(story)
     const linealChunks = [];
     const nonLinealChunks = [];
     story.audio.forEach((track) => {
@@ -62,9 +71,16 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
             }
         })
     })
+    console.log(linealChunks)
     let linealClips = [];
     linealChunks.forEach(chunk => {
-        const range = { start: chunk.in, end: chunk.out };
+        const range = { 
+            in: chunk.in, 
+            out: chunk.out, 
+            start: chunk.start, 
+            end: chunk.end,
+            duration: chunk.duration 
+        };
         linealClips.push(...trimLinealClips(linealSeq, range))
     })
     console.log(linealClips)

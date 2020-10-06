@@ -8,8 +8,14 @@ export function seqObj(seq) {
         timebase: seq.timebase,
         zeroPoint: seq.zeroPoint,
         audioTracks: trackArr(seq.audioTracks),
+        projectItem: {
+            name: seq.projectItem.name,
+            nodeId: seq.projectItem.nodeId,
+            treePath: seq.projectItem.treePath
+        }
         // videoTracks: trackArr(seq.videoTracks)
     }
+
 }
 
 export function seqArr(seqColl) {

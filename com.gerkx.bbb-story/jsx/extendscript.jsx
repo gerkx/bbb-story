@@ -62,8 +62,14 @@ function seqObj(seq) {
         timebase: seq.timebase,
         zeroPoint: seq.zeroPoint,
         audioTracks: trackArr(seq.audioTracks),
+        projectItem: {
+            name: seq.projectItem.name,
+            nodeId: seq.projectItem.nodeId,
+            treePath: seq.projectItem.treePath
+        }
         // videoTracks: trackArr(seq.videoTracks)
     }
+
 }
 
 function seqArr(seqColl) {
@@ -75,6 +81,8 @@ function seqArr(seqColl) {
     return seqArr
 }
 
+// import { clipObj } from './track';
+
 /* eslint-disable no-undef */
 
 function getSequences() {
@@ -85,55 +93,30 @@ function getSequences() {
     return JSON.stringify(seqArr(sequences))
 }
 
-function search(projItem, id) {
-    alert("enter");
-    alert(projItem.name);
-    var match = null;
-    for (var i = 0; i < projItem.numItems; i++) {
-        var item = projItem[i];
-        alert(item.name);
-        alert(item.type == 2);
-        if (item.type == 2) {
-            alert('beep');
-            search(item, id);
-        }
-        if (item.nodeId == id) {
-            match = item;
-            return match
+
+
+
+function findProjItem(nodeId) {
+    var projItems = app.project.rootItem.children;
+    return search(projItems, nodeId);
+
+
+    function search(projItem, id) {
+        // var PROJECT_ITEM_CLIP = 1;
+        var PROJECT_ITEM_BIN = 2;
+        
+        for (var i = 0; i < projItem.numItems; i++) {
+            var item = projItem[i];
+            if (item.type == PROJECT_ITEM_BIN) {
+                var found = search(item.children, id);
+                if (found) return found
+            } else {
+                if (item.nodeId === id) {
+                    return item
+                }
+            }
         }
     }
-    return match
-}
-
-function findProjItem(projItemRef) {
-    var projItems = app.project.rootItem.children;
-    var match = search(projItems, projItemRef.nodeId);
-
-    return match
-    // var match = search(projItems)
-    // alert(projItems.numItems)
-    // var treeLevels = projItemRef.treePath.split('\\')
-
-    // // var item = null;
-    // for (var i = 0; i < treeLevels.length; i++) {
-    //     var parentName = treeLevels[i];
-    //     for (var k = 0; k < projItems.numItems; k++) {
-    //         var item = projItems[k];
-    //         alert("testing: " + item.name + " vs " + parentName) 
-    //         if (item.name == parentName) {
-    //             alert("matched: " + item.name)
-    //             projItems = item;
-    //             alert(projItems.name)
-    //             break;
-    //         }
-    //     }
-    // }
-    // return projItems
-    // for (var i = 0; i < projItems.numItems; i++) {
-    //     var item = projItems[i];
-    //     alert(item.treePath)
-    //     if (item.nodeId == nodeId) return item
-    // }
 }
 
 // function emit(data) {
@@ -148,10 +131,15 @@ function testAssemble(clipArr) {
     /* eslint-disable no-useless-escape */
     
     var seq = app.project.activeSequence;
-    for (var i = 0; i < 1; i++) {
+    // var item = findProjItem("000f4298");
+    // item.setInPoint(1.0);
+    // item.setOutPoint(5.0);
+    // seq.audioTracks[4].overwriteClip(item, 0.0)
+    for (var i = 0; i < clipArr.length; i++) {
         var clip = clipArr[i];
         // alert(clip.nodeId)
-        var projItem = findProjItem(clip.projectItem);
+        var projItem = findProjItem(clip.projectItem.nodeId);
+        
         projItem.setInPoint(clip.inPoint);
         projItem.setOutPoint(clip.outPoint);
         seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start);
