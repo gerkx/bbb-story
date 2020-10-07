@@ -16,10 +16,26 @@ export const getSequences = () => {
     })
 }
 
+const createChunks = (xmlPath, linealSeq) => {
+    const story = storySeq(xmlPath);
+    const linealChunks = [];
+    const nonLinealChunks = [];
+    story.audio.forEach((track) => {
+        track.forEach((clip) => {
+            const ext = path.extname(clip.file.name);
+            const filename = path.basename(clip.file.name, ext)
+            if (filename === linealSeq.name) {
+                linealChunks.push(clip)
+            } else {
+                nonLinealChunks.push(clip)
+            }
+        })
+    })
+    return {linealChunks: linealChunks, nonLinealChunks: nonLinealChunks}
+}
 
 const trimLinealClips = (linealSeq, range) => {
     let  clips = []
-    
     linealSeq.audioTracks.forEach((track, idx) => {
         track.clips.filter(clip => {
             return clip.start < range.out && clip.end > range.in
@@ -85,28 +101,9 @@ export const setNonLinealClipTracks = (clipArr, linealSeq) => {
     return clips
 }
 
-export const createNonLinealClips = (clipArr, linealSeq, xmlPath) => {
-    const linkedClips = locateFiles(xmlPath, clipArr);
-    return setNonLinealClipTracks(linkedClips, linealSeq)
-}
-
-export const createAnimaticSeq = (xmlPath, linealSeq) => {
-    const story = storySeq(xmlPath);
-    const linealChunks = [];
-    const nonLinealChunks = [];
-    story.audio.forEach((track) => {
-        track.forEach((clip) => {
-            const ext = path.extname(clip.file.name);
-            const filename = path.basename(clip.file.name, ext)
-            if (filename === linealSeq.name) {
-                linealChunks.push(clip)
-            } else {
-                nonLinealChunks.push(clip)
-            }
-        })
-    })
+export const createLinealClips = (chunkArr, linealSeq) => {
     let linealClips = [];
-    linealChunks.forEach(chunk => {
+    chunkArr.forEach(chunk => {
         const range = { 
             in: chunk.in, 
             out: chunk.out, 
@@ -116,11 +113,47 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
         };
         linealClips.push(...trimLinealClips(linealSeq, range))
     })
+    return linealClips
+}
+
+export const createNonLinealClips = (clipArr, linealSeq, xmlPath) => {
+    const linkedClips = locateFiles(xmlPath, clipArr);
+    return setNonLinealClipTracks(linkedClips, linealSeq)
+}
+
+export const createAnimaticSeq = (xmlPath, linealSeq) => {
+    console.log(linealSeq)
+    const { linealChunks, nonLinealChunks } = createChunks(xmlPath, linealSeq)
+
+    const linealClips = createLinealClips(linealChunks, linealSeq);
     const nonLinealClips = createNonLinealClips(nonLinealChunks, linealSeq, xmlPath);
-    cs.addEventListener('boop', function(evt) {
-        console.log(evt)
-    });
-    // cs.evalScript(`testAssemble(${JSON.stringify(linealClips)})`, function() {
-    //     console.log('payload')
+    
+    console.log(linealClips)
+    console.log(nonLinealClips)
+    
+    const numOfTracks = [...linealClips, ...nonLinealClips].map(x=>x.track.idx)
+        .sort((a,b)=>a-b).reverse()[0] + 1;
+
+    const tempName = "beeyoop";
+
+    const tempId = "aaa";
+
+    const seqInfo = JSON.stringify({
+        linealClips: linealClips,
+        nonLinealClips: nonLinealClips,
+        numTracks: numOfTracks,
+        name: tempName,
+        id: tempId
+    })
+
+    console.log(JSON.parse(seqInfo))
+    // cs.addEventListener('boop', function(evt) {
+    //     console.log(evt)
+    // });
+    // cs.evalScript(`testAssemble()`, function(payload) {
+    //     console.log(payload)
     // })
+    cs.evalScript(`testAssemble(${seqInfo})`, function(payload) {
+        console.log(JSON.parse(payload))
+    })
 }
