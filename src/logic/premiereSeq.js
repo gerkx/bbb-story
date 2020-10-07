@@ -54,6 +54,23 @@ const trimLinealClips = (linealSeq, range) => {
     return clips
 }
 
+export const setNonLinealClipTracks = (clipArr, linealSeq) => {
+    const numLinealTracks = linealSeq.audioTracks.length;
+    let clips = [];
+    clipArr.forEach(clip => {
+        const conflictingClips = clips.filter(x=> {
+            return x.start < clip.end && x.end > clip.end
+        })
+        if (conflictingClips.length < 1) {
+            clips.push({
+                ...clip,
+                track: { idx: numLinealTracks }
+            })
+        }
+    })
+    return clips
+}
+
 export const createAnimaticSeq = (xmlPath, linealSeq) => {
     const story = storySeq(xmlPath);
     const linealChunks = [];
