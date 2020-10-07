@@ -55,7 +55,7 @@ const trimLinealClips = (linealSeq, range) => {
 }
 
 export const setNonLinealClipTracks = (clipArr, linealSeq) => {
-    const numLinealTracks = linealSeq.audioTracks.length;
+    const firstAvailTrack = linealSeq.audioTracks.length;
     let clips = [];
     clipArr.forEach(clip => {
         const conflictingClips = clips.filter(x=> {
@@ -64,11 +64,30 @@ export const setNonLinealClipTracks = (clipArr, linealSeq) => {
         if (conflictingClips.length < 1) {
             clips.push({
                 ...clip,
-                track: { idx: numLinealTracks }
+                track: { idx: firstAvailTrack }
             })
+        } else {
+            const conflictTracks = conflictingClips.map(x=> x.track.idx)
+                .sort((a,b) => a-b).reverse()
+            if (!(conflictTracks.includes(firstAvailTrack))) {
+                clips.push({
+                    ...clip,
+                    track: { idx: firstAvailTrack }
+                })
+            } else {
+                clips.push({
+                    ...clip,
+                    track: { idx: conflictTracks[0] + 1}
+                })
+            }
         }
     })
     return clips
+}
+
+export const createNonLinealClips = (clipArr, linealSeq, xmlPath) => {
+    const linkedClips = locateFiles(xmlPath, clipArr);
+    return setNonLinealClipTracks(linkedClips, linealSeq)
 }
 
 export const createAnimaticSeq = (xmlPath, linealSeq) => {
@@ -97,9 +116,7 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
         };
         linealClips.push(...trimLinealClips(linealSeq, range))
     })
-    
-    const linkedNonLinealClips = locateFiles(xmlPath, nonLinealChunks);
-    
+    const nonLinealClips = createNonLinealClips(nonLinealChunks, linealSeq, xmlPath);
     cs.addEventListener('boop', function(evt) {
         console.log(evt)
     });
