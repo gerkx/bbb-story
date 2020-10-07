@@ -17,13 +17,10 @@ export function getSequences() {
 }
 
 
-
-
 function findProjItem(nodeId) {
     var projItems = app.project.rootItem.children;
     return search(projItems, nodeId);
-
-
+    
     function search(projItem, id) {
         // var PROJECT_ITEM_CLIP = 1;
         var PROJECT_ITEM_BIN = 2;

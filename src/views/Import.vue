@@ -32,7 +32,7 @@
                     block
                     @click="chooseVideoFile"
                 >
-                    <v-icon class="pr-2">mdi-video</v-icon>
+                    <v-icon class="pr-2">mdi-file-video</v-icon>
                     <span>{{video.name}}</span>
                 </v-btn>
             </v-row>
@@ -43,7 +43,7 @@
                     block 
                     @click="chooseLineal"
                 >
-                    <v-icon class="pr-2">mdi-file-video</v-icon>
+                    <v-icon class="pr-2">mdi-chart-timeline</v-icon>
                     <span>{{lineal.name}}</span>
                 </v-btn>
             </v-row>

@@ -3,6 +3,7 @@ const cs = new CSInterface();
 const path = cep_node.require('path');
 
 import { storySeq } from './xml';
+import { locateFiles } from './fileIO'
 
 
 export const getSequences = () => {
@@ -24,10 +25,8 @@ const trimLinealClips = (linealSeq, range) => {
             return clip.start < range.out && clip.end > range.in
         }).forEach(clip => {
             let subClip = {...clip}
-
             if (subClip.start < range.in) {
                 const inPointOffset = range.in - subClip.start;
-                
                 subClip.inPoint += inPointOffset;
                 subClip.start = range.start;
             }
@@ -51,7 +50,6 @@ const trimLinealClips = (linealSeq, range) => {
                 }
             })
         })
-        
     })
     return clips
 }
@@ -71,7 +69,6 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
             }
         })
     })
-    console.log(linealChunks)
     let linealClips = [];
     linealChunks.forEach(chunk => {
         const range = { 
@@ -83,11 +80,13 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
         };
         linealClips.push(...trimLinealClips(linealSeq, range))
     })
-    console.log(linealClips)
+    
+    const linkedNonLinealClips = locateFiles(xmlPath, nonLinealChunks);
+    
     cs.addEventListener('boop', function(evt) {
         console.log(evt)
     });
-    cs.evalScript(`testAssemble(${JSON.stringify(linealClips)})`, function() {
-        console.log('payload')
-    })
+    // cs.evalScript(`testAssemble(${JSON.stringify(linealClips)})`, function() {
+    //     console.log('payload')
+    // })
 }
