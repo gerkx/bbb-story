@@ -149,6 +149,12 @@ export default {
         createAnimatic(seqName) {
             this.toggleAnimaticSequenceNameModal()
             this.animaticSequenceName = seqName
+            createAnimaticSeq(
+                this.xmlPath, 
+                this.videoPath, 
+                this.linealSequence, 
+                this.animaticSequenceName
+            )
             console.log(this.animaticSequenceName)
         },
         chooseXMLFile() {
@@ -185,8 +191,9 @@ export default {
         },
         test() {
             console.log(this.linealSequence)
-            const p = "F:/story/MM_138_cajas_de_Carton_Cl_v1.xml"
-            createAnimaticSeq(p, this.linealSequence)
+            const p = "F:/story/MM_138_cajas_de_Carton_Cl_v1.xml";
+            const vid = "F:\\story\\MM_138_CajasdeCarton_Cl_V2_low.mov"
+            createAnimaticSeq(p, vid, this.linealSequence)
         }
     }
     

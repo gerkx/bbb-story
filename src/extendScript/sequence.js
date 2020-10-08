@@ -41,10 +41,28 @@ function addAudioClipsToSeq(seq, clipArr) {
     }
 }
 
+function addVideoClipsToSeq(seq, vidObj) {
+    var projItem = findProjItem(vidObj);
+    if (projItem){
+        for (var i = 0; i < vidObj.clips.length; i++) {
+            var clip = vidObj.clips[i];
+            projItem.setInPoint(clip.in);
+            projItem.setOutPoint(clip.out);
+            seq.videoTracks[0].overwriteClip(projItem, clip.start);
+            var audioClipIdx = seq.audioTracks[0].clips.numItems - 1
+            seq.audioTracks[0].clips[audioClipIdx].remove(true, true);
+            var marker = seq.markers.createMarker(clip.start);
+            marker.name = ("0000" + (i*10)).slice(-4)
+        }
+    }
+    
+}
+
 export function createAnimaticSeq (seqInfo) {
     var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
-    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.clips);
+    addVideoClipsToSeq(seq, seqInfo.video)
+    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.audio.numTracks);
+    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.audio.clips);
 
     return seq
 }

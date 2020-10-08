@@ -211,10 +211,28 @@ function addAudioClipsToSeq(seq, clipArr) {
     }
 }
 
+function addVideoClipsToSeq(seq, vidObj) {
+    var projItem = findProjItem(vidObj);
+    if (projItem){
+        for (var i = 0; i < vidObj.clips.length; i++) {
+            var clip = vidObj.clips[i];
+            projItem.setInPoint(clip.in);
+            projItem.setOutPoint(clip.out);
+            seq.videoTracks[0].overwriteClip(projItem, clip.start);
+            var audioClipIdx = seq.audioTracks[0].clips.numItems - 1;
+            seq.audioTracks[0].clips[audioClipIdx].remove(true, true);
+            var marker = seq.markers.createMarker(clip.start);
+            marker.name = ("0000" + (i*10)).slice(-4);
+        }
+    }
+    
+}
+
 function createAnimaticSeq (seqInfo) {
     var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
-    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.clips);
+    addVideoClipsToSeq(seq, seqInfo.video);
+    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.audio.numTracks);
+    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.audio.clips);
 
     return seq
 }
@@ -245,48 +263,8 @@ function getSequences() {
 // }
 
 // export function testAssemble(clipArr) {
-function testAssemble(seqInfo) {
+function assembleAnimaticSeq(seqInfo) {
     var animatic = createAnimaticSeq(seqInfo);
-
-    /* eslint-disable no-useless-escape */
-    
-    // var seq = app.project.activeSequence;
-    // var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    // var enoughTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
-
-    // if (enoughTracks) {
-
-    // }
-
-    // var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    // var nonLinealClipPaths = [];
-    // for (var x = 0; x < seqInfo.nonLinealClips.length; x++) {
-    //     nonLinealClipPaths.push(seqInfo.nonLinealClips[x].file.path)
-    // }
-    // app.project.importFiles(nonLinealClipPaths)
-
-    // var clipArr = seqInfo.linealClips
-    // for (var i = 0; i < clipArr.length; i++) {
-    //         var clip = clipArr[i]
-    //         // alert(clip.nodeId)
-    //         var projItem = findProjItemByNodeId(clip.projectItem.nodeId);
-    
-    //         projItem.setInPoint(clip.inPoint);
-    //         projItem.setOutPoint(clip.outPoint);
-    //         seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start)
-    // }
-
-    // // var nonLinealClips = [];
-    // for (var k = 0; k < seqInfo.nonLinealClips.length; k++) {
-    //     var nonLinearClip = seqInfo.nonLinealClips[k];
-    //     var clipItem = findProjItemByName(nonLinearClip.file.name);
-    //     if (clipItem) {
-    //         clipItem.setInPoint(nonLinearClip.in);
-    //         clipItem.setOutPoint(nonLinearClip.out);
-
-    //         seq.audioTracks[nonLinearClip.track.idx].overwriteClip(clipItem, nonLinearClip.start)
-    //     }
-    // }
 
     return JSON.stringify(animatic)
 }

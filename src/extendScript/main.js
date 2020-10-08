@@ -31,48 +31,8 @@ export function getSequences() {
 // }
 
 // export function testAssemble(clipArr) {
-export function testAssemble(seqInfo) {
+export function assembleAnimaticSeq(seqInfo) {
     var animatic = createAnimaticSeq(seqInfo);
-
-    /* eslint-disable no-useless-escape */
-    
-    // var seq = app.project.activeSequence;
-    // var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    // var enoughTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
-
-    // if (enoughTracks) {
-
-    // }
-
-    // var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    // var nonLinealClipPaths = [];
-    // for (var x = 0; x < seqInfo.nonLinealClips.length; x++) {
-    //     nonLinealClipPaths.push(seqInfo.nonLinealClips[x].file.path)
-    // }
-    // app.project.importFiles(nonLinealClipPaths)
-
-    // var clipArr = seqInfo.linealClips
-    // for (var i = 0; i < clipArr.length; i++) {
-    //         var clip = clipArr[i]
-    //         // alert(clip.nodeId)
-    //         var projItem = findProjItemByNodeId(clip.projectItem.nodeId);
-    
-    //         projItem.setInPoint(clip.inPoint);
-    //         projItem.setOutPoint(clip.outPoint);
-    //         seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start)
-    // }
-
-    // // var nonLinealClips = [];
-    // for (var k = 0; k < seqInfo.nonLinealClips.length; k++) {
-    //     var nonLinearClip = seqInfo.nonLinealClips[k];
-    //     var clipItem = findProjItemByName(nonLinearClip.file.name);
-    //     if (clipItem) {
-    //         clipItem.setInPoint(nonLinearClip.in);
-    //         clipItem.setOutPoint(nonLinearClip.out);
-
-    //         seq.audioTracks[nonLinearClip.track.idx].overwriteClip(clipItem, nonLinearClip.start)
-    //     }
-    // }
 
     return JSON.stringify(animatic)
 }

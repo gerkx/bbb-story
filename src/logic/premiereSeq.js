@@ -126,7 +126,7 @@ export const createNonLinealClips = (clipArr, linealSeq, xmlPath) => {
     return setNonLinealClipTracks(linkedClips, linealSeq)
 }
 
-export const createAnimaticSeq = (xmlPath, linealSeq) => {
+export const createAnimaticSeq = (xmlPath, vidPath, linealSeq, seqName) => {
     console.log(linealSeq)
     const { linealChunks, nonLinealChunks } = createChunks(xmlPath, linealSeq)
 
@@ -139,14 +139,18 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
     const numOfTracks = [...linealClips, ...nonLinealClips].map(x=>x.track.idx)
         .sort((a,b)=>a-b).reverse()[0] + 1;
 
-    const tempName = "yeehaw";
-
     const tempId = "aaa";
-
+    console.log(storySeq(xmlPath))
     const seqInfo = JSON.stringify({
-        clips: [...linealClips, ...nonLinealClips],
-        numTracks: numOfTracks,
-        name: tempName,
+        audio: {
+            clips: [...linealClips, ...nonLinealClips],
+            numTracks: numOfTracks,
+        },
+        video: {
+            file: { path: vidPath, name: path.basename(vidPath) },
+            clips: storySeq(xmlPath).video
+        },
+        name: seqName,
         id: tempId
     })
 
@@ -157,7 +161,7 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
     // cs.evalScript(`testAssemble()`, function(payload) {
     //     console.log(payload)
     // })
-    cs.evalScript(`testAssemble(${seqInfo})`, function(payload) {
+    cs.evalScript(`assembleAnimaticSeq(${seqInfo})`, function(payload) {
         console.log(JSON.parse(payload))
     })
 }
