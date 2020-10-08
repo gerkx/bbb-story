@@ -8,6 +8,8 @@ var ERR_NO_SEQUENCES = {
     message: "Project doesn't contain any sequences, create a sequence and try again"
 };
 
+/* eslint-disable no-undef */
+
 function clipObj(clip) {
     var obj = {
         name: clip.name,
@@ -55,30 +57,20 @@ function trackArr(trackColl) {
     return trackArr
 }
 
-function seqObj(seq) {
-    return {
-        name: seq.name,
-        sequenceID: seq.sequenceID,
-        timebase: seq.timebase,
-        zeroPoint: seq.zeroPoint,
-        audioTracks: trackArr(seq.audioTracks),
-        projectItem: {
-            name: seq.projectItem.name,
-            nodeId: seq.projectItem.nodeId,
-            treePath: seq.projectItem.treePath
+function addMissingAudioTracks(seq, numTracks) {
+    var numTracksToAdd = numTracks - seq.audioTracks.numTracks;
+    if (numTracksToAdd > 0) {
+        var seqActive = app.project.openSequence(seq.sequenceID);
+        if (seqActive) {
+            app.enableQE();
+            var qeSeq = qe.project.getActiveSequence();
+            for (var j = 0; j < numTracksToAdd; j++) {
+                qeSeq.addTracks(0);
+            }
         }
-        // videoTracks: trackArr(seq.videoTracks)
     }
-
-}
-
-function seqArr(seqColl) {
-    var seqArr = [];
-    for (var i = 0; i < seqColl.numSequences; i++) {
-        var seq = seqColl[i];
-        seqArr.push(seqObj(seq));
-    }
-    return seqArr
+    // var updatedSeq = app.project.openSequence(seq.sequenceID);
+    return seq.audioTracks.numTracks == numTracks ? true : false
 }
 
 /* eslint-disable no-undef */
@@ -128,6 +120,109 @@ function findProjItemByName(name) {
     }
 }
 
+function findProjItemByPath(mediaPath) {
+    // var baseName = name.split('.')[0]
+    var projItems = app.project.rootItem.children;
+    return search(projItems, mediaPath);
+
+    function search(projItem, mediaPath) {
+        // var PROJECT_ITEM_CLIP = 1;
+        var PROJECT_ITEM_BIN = 2;
+        
+        for (var i = 0; i < projItem.numItems; i++) {
+            var item = projItem[i];
+            if (item.type == PROJECT_ITEM_BIN) {
+                var found = search(item.children, mediaPath);
+                if (found) return found
+            } else {
+                if (item.getMediaPath() === mediaPath) {
+                    return item
+                }
+            }
+        }
+    }
+}
+
+function findProjItem(clip) {
+    var projItem = null;
+    if ('projectItem' in clip) {
+        projItem = findProjItemByNodeId(clip.projectItem.nodeId);
+    } else {
+        if ('file' in clip) projItem = findProjItemByName(clip.file.name);
+    }
+    if (!projItem) {
+        projItem = importClip(clip);
+    }
+    return projItem
+}
+
+
+
+function importClip(clip) {
+    var imported = app.project.importFiles([clip.file.path]);
+    if (imported) {
+        var projItem = findProjItemByPath(clip.file.path);
+        if (projItem) {
+            return projItem
+        } else {
+            return null
+        }
+    }
+    return null
+}
+
+/* eslint-disable no-undef */
+
+
+function seqObj(seq) {
+    return {
+        name: seq.name,
+        sequenceID: seq.sequenceID,
+        timebase: seq.timebase,
+        zeroPoint: seq.zeroPoint,
+        audioTracks: trackArr(seq.audioTracks),
+        projectItem: {
+            name: seq.projectItem.name,
+            nodeId: seq.projectItem.nodeId,
+            treePath: seq.projectItem.treePath
+        }
+        // videoTracks: trackArr(seq.videoTracks)
+    }
+}
+
+function seqArr(seqColl) {
+    var seqArr = [];
+    for (var i = 0; i < seqColl.numSequences; i++) {
+        var seq = seqColl[i];
+        seqArr.push(seqObj(seq));
+    }
+    return seqArr
+}
+
+function addAudioClipsToSeq(seq, clipArr) {
+    for (var i = 0; i < clipArr.length; i++) {
+        var clip = clipArr[i];
+        var projItem = findProjItem(clip);
+        if (projItem) {
+            projItem.setInPoint(clip.inPoint);
+            projItem.setOutPoint(clip.outPoint);
+            seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start);
+        }
+    }
+}
+
+function createAnimaticSeq (seqInfo) {
+    var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
+    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
+    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.clips);
+
+    return seq
+}
+
+// import { 
+//     findProjItemByNodeId, 
+//     findProjItemByName ,
+// } from './clip';
 // import { clipObj } from './track';
 
 /* eslint-disable no-undef */
@@ -151,53 +246,49 @@ function getSequences() {
 
 // export function testAssemble(clipArr) {
 function testAssemble(seqInfo) {
+    var animatic = createAnimaticSeq(seqInfo);
+
     /* eslint-disable no-useless-escape */
     
     // var seq = app.project.activeSequence;
-    var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    var numTracksToAdd = seqInfo.numTracks - seq.audioTracks.numTracks;
-    if (numTracksToAdd > 0) {
-        var seqActive = app.project.openSequence(seq.sequenceID);
-        if (seqActive) {
-            app.enableQE();
-            var qeSeq = qe.project.getActiveSequence();
-            for (var j = 0; j < numTracksToAdd; j++) {
-                qeSeq.addTracks(0);
-            }
-        }
-    }
+    // var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
+    // var enoughTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
+
+    // if (enoughTracks) {
+
+    // }
 
     // var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
+    // var nonLinealClipPaths = [];
+    // for (var x = 0; x < seqInfo.nonLinealClips.length; x++) {
+    //     nonLinealClipPaths.push(seqInfo.nonLinealClips[x].file.path)
+    // }
+    // app.project.importFiles(nonLinealClipPaths)
 
-    var clipArr = seqInfo.linealClips;
-    for (var i = 0; i < clipArr.length; i++) {
-            var clip = clipArr[i];
-            // alert(clip.nodeId)
-            var projItem = findProjItemByNodeId(clip.projectItem.nodeId);
+    // var clipArr = seqInfo.linealClips
+    // for (var i = 0; i < clipArr.length; i++) {
+    //         var clip = clipArr[i]
+    //         // alert(clip.nodeId)
+    //         var projItem = findProjItemByNodeId(clip.projectItem.nodeId);
     
-            projItem.setInPoint(clip.inPoint);
-            projItem.setOutPoint(clip.outPoint);
-            seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start);
-    }
+    //         projItem.setInPoint(clip.inPoint);
+    //         projItem.setOutPoint(clip.outPoint);
+    //         seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start)
+    // }
 
-    var nonLinealClipPaths = [];
-    for (var x = 0; x < seqInfo.nonLinealClips.length; x++) {
-        nonLinealClipPaths.push(seqInfo.nonLinealClips[x].file.path);
-    }
-    app.project.importFiles(nonLinealClipPaths);
-    // var nonLinealClips = [];
-    for (var k = 0; k < seqInfo.nonLinealClips.length; k++) {
-        var nonLinearClip = seqInfo.nonLinealClips[k];
-        var clipItem = findProjItemByName(nonLinearClip.file.name);
-        if (clipItem) {
-            clipItem.setInPoint(nonLinearClip.in);
-            clipItem.setOutPoint(nonLinearClip.out);
+    // // var nonLinealClips = [];
+    // for (var k = 0; k < seqInfo.nonLinealClips.length; k++) {
+    //     var nonLinearClip = seqInfo.nonLinealClips[k];
+    //     var clipItem = findProjItemByName(nonLinearClip.file.name);
+    //     if (clipItem) {
+    //         clipItem.setInPoint(nonLinearClip.in);
+    //         clipItem.setOutPoint(nonLinearClip.out);
 
-            seq.audioTracks[nonLinearClip.track.idx].overwriteClip(clipItem, nonLinearClip.start);
-        }
-    }
+    //         seq.audioTracks[nonLinearClip.track.idx].overwriteClip(clipItem, nonLinearClip.start)
+    //     }
+    // }
 
-    return JSON.stringify(seq)
+    return JSON.stringify(animatic)
 }
 
 

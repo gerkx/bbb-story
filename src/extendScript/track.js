@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 export function clipObj(clip) {
     var obj = {
         name: clip.name,
@@ -43,4 +45,20 @@ export function trackArr(trackColl) {
         trackArr.push(trackObj(track))
     }
     return trackArr
+}
+
+export function addMissingAudioTracks(seq, numTracks) {
+    var numTracksToAdd = numTracks - seq.audioTracks.numTracks
+    if (numTracksToAdd > 0) {
+        var seqActive = app.project.openSequence(seq.sequenceID);
+        if (seqActive) {
+            app.enableQE();
+            var qeSeq = qe.project.getActiveSequence();
+            for (var j = 0; j < numTracksToAdd; j++) {
+                qeSeq.addTracks(0)
+            }
+        }
+    }
+    // var updatedSeq = app.project.openSequence(seq.sequenceID);
+    return seq.audioTracks.numTracks == numTracks ? true : false
 }

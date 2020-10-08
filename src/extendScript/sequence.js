@@ -1,4 +1,7 @@
-import { trackArr } from './track'
+/* eslint-disable no-undef */
+
+import { trackArr, addMissingAudioTracks } from './track';
+import { findProjItem,  } from './clip'
 
 
 export function seqObj(seq) {
@@ -15,7 +18,6 @@ export function seqObj(seq) {
         }
         // videoTracks: trackArr(seq.videoTracks)
     }
-
 }
 
 export function seqArr(seqColl) {
@@ -25,4 +27,24 @@ export function seqArr(seqColl) {
         seqArr.push(seqObj(seq))
     }
     return seqArr
+}
+
+function addAudioClipsToSeq(seq, clipArr) {
+    for (var i = 0; i < clipArr.length; i++) {
+        var clip = clipArr[i];
+        var projItem = findProjItem(clip);
+        if (projItem) {
+            projItem.setInPoint(clip.inPoint);
+            projItem.setOutPoint(clip.outPoint);
+            seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start)
+        }
+    }
+}
+
+export function createAnimaticSeq (seqInfo) {
+    var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
+    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.numTracks);
+    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.clips);
+
+    return seq
 }

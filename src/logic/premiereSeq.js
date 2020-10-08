@@ -74,12 +74,17 @@ export const setNonLinealClipTracks = (clipArr, linealSeq) => {
     const firstAvailTrack = linealSeq.audioTracks.length;
     let clips = [];
     clipArr.forEach(clip => {
+        var ioClip = {
+            ...clip,
+            inPoint: clip.in,
+            outPoint: clip.out
+        }
         const conflictingClips = clips.filter(x=> {
-            return x.start < clip.end && x.end > clip.end
+            return x.start < ioClip.end && x.end > ioClip.start
         })
         if (conflictingClips.length < 1) {
             clips.push({
-                ...clip,
+                ...ioClip,
                 track: { idx: firstAvailTrack }
             })
         } else {
@@ -87,12 +92,12 @@ export const setNonLinealClipTracks = (clipArr, linealSeq) => {
                 .sort((a,b) => a-b).reverse()
             if (!(conflictTracks.includes(firstAvailTrack))) {
                 clips.push({
-                    ...clip,
+                    ...ioClip,
                     track: { idx: firstAvailTrack }
                 })
             } else {
                 clips.push({
-                    ...clip,
+                    ...ioClip,
                     track: { idx: conflictTracks[0] + 1}
                 })
             }
@@ -134,13 +139,12 @@ export const createAnimaticSeq = (xmlPath, linealSeq) => {
     const numOfTracks = [...linealClips, ...nonLinealClips].map(x=>x.track.idx)
         .sort((a,b)=>a-b).reverse()[0] + 1;
 
-    const tempName = "beeyoop";
+    const tempName = "yeehaw";
 
     const tempId = "aaa";
 
     const seqInfo = JSON.stringify({
-        linealClips: linealClips,
-        nonLinealClips: nonLinealClips,
+        clips: [...linealClips, ...nonLinealClips],
         numTracks: numOfTracks,
         name: tempName,
         id: tempId
