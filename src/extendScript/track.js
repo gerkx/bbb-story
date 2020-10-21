@@ -62,3 +62,8 @@ export function addMissingAudioTracks(seq, numTracks) {
     // var updatedSeq = app.project.openSequence(seq.sequenceID);
     return seq.audioTracks.numTracks == numTracks ? true : false
 }
+
+export function getNumberOfVidTracks() {
+    var seq = app.project.activeSequence;
+    return seq.videoTracks.numTracks
+}

@@ -2,6 +2,8 @@
 
 import { trackArr, addMissingAudioTracks } from './track';
 import { findProjItem,  } from './clip'
+import { joinPath, padZero } from './util'
+import { markersToArr } from './markers'
 
 
 export function seqObj(seq) {
@@ -66,4 +68,15 @@ export function createAnimaticSeq (seqInfo) {
     if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.audio.clips);
 
     return seq
+}
+
+export function createShotSupers (info) {
+    var seq = app.project.activeSequence;
+    if (!seq) return false;
+    markers = markersToArr(seq.markers);
+
+    return JSON.stringify(markers)
+
+    // var mogrtPath = joinPath([info.extPath], 'mogrt', 'super.mogrt');
+    // var mogrt = new File(mogrtPath);
 }

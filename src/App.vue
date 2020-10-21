@@ -6,6 +6,10 @@
       dense
       dark
     >
+      <v-tabs v-model="tabs" color="white">
+        <v-tab key="import" to="/import">Import</v-tab>
+        <v-tab key="supers" to="/supers">Supers</v-tab>
+      </v-tabs>
       <v-spacer></v-spacer>
       <v-btn icon @click="reload">
         <v-icon>mdi-reload</v-icon>
@@ -13,19 +17,19 @@
     </v-app-bar>
 
     <v-main>
-      <Import />
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Import from './views/Import';
+// import Import from './views/Import';
 
 export default {
   name: 'App',
 
   components: {
-    Import,
+    // Import,
   },
 
   mounted() {
@@ -33,10 +37,16 @@ export default {
     this.csInterface = new CSInterface();
     this.loadJSX('json.jsx');
     this.loadJSX('extendscript.jsx');
+    this.$router.push('supers')
   },
 
   data: () => ({
     csInterface: null,
+    tab: null,
+    pages: [
+      {tab: "beep", content: "boop"},
+      {tab: "herp", content: "derp"},
+    ]
   }),
   methods: {
     reload() { location.reload(); },

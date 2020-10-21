@@ -154,3 +154,24 @@ export const createAnimaticSeq = (xmlPath, vidPath, linealSeq, seqName) => {
         console.log(JSON.parse(payload))
     })
 }
+
+export const createSupers = (payload) => {
+    const extPath = cs.getSystemPath(SystemPath.EXTENSION);
+    return new Promise((resolve, reject) => {
+        cs.evalScript(`createSupers(${JSON.stringify(
+            {...payload, extPath: extPath}
+        )})`, function(success) {
+            if(!success) { return reject(sucess)}
+            else { return resolve(success) }
+        })
+    })
+}
+
+export const getNumberOfVideoTracks = () => {
+    return new Promise((resolve, reject) => {
+        cs.evalScript('getNumberOfVideoTracks()', function(res) {
+            if (!res) { return reject(res) }
+            else { return resolve(res) }
+        })
+    })
+}

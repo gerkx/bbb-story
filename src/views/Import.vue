@@ -1,6 +1,5 @@
 <template>
     <v-container>
-            <v-btn @click="test">test</v-btn>
             <NameSeqModal 
                 :linealName="lineal.name" 
                 :modal="animaticSequenceNameModal"
@@ -145,12 +144,6 @@ export default {
         },
         toggleLinealSequenceLoading() {
             this.linealSequenceLoading = !this.linealSequenceLoading;
-        },
-        test() {
-            console.log(this.linealSequence)
-            const p = "F:/story/MM_138_cajas_de_Carton_Cl_v1.xml";
-            const vid = "F:\\story\\MM_138_CajasdeCarton_Cl_V2_low.mov"
-            createAnimaticSeq(p, vid, this.linealSequence)
         },
         createAnimatic(seqName) {
             this.animaticSequenceName = seqName

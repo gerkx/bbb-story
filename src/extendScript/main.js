@@ -3,7 +3,9 @@ import {
     ERR_NO_SEQUENCES,
 } from './errors'
 
-import { seqArr, createAnimaticSeq } from './sequence';
+import { seqArr, createAnimaticSeq, createShotSupers } from './sequence';
+
+import {getNumberOfVidTracks } from './track'
 
 // import { 
 //     findProjItemByNodeId, 
@@ -35,4 +37,13 @@ export function assembleAnimaticSeq(seqInfo) {
     var animatic = createAnimaticSeq(seqInfo);
 
     return JSON.stringify(animatic)
+}
+
+export function createSupers(info) {
+    var markers = createShotSupers(info)
+    return markers
+}
+
+export function getNumberOfVideoTracks() {
+    return getNumberOfVidTracks()
 }

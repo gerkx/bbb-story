@@ -73,6 +73,11 @@ function addMissingAudioTracks(seq, numTracks) {
     return seq.audioTracks.numTracks == numTracks ? true : false
 }
 
+function getNumberOfVidTracks() {
+    var seq = app.project.activeSequence;
+    return seq.videoTracks.numTracks
+}
+
 /* eslint-disable no-undef */
 
 function findProjItemByNodeId(nodeId) {
@@ -170,6 +175,21 @@ function importClip(clip) {
     return null
 }
 
+function markersToArr(markerColl) {
+    var arr = [];
+    var curr = null;
+    for (var i = 0; i < markerColl.numMarkers; i++) {
+        if (i === 0) { 
+            curr = markerColl.getFirstMarker();
+            arr.push(curr);
+         } else {
+             curr = markerColl.getNextMarker(curr);
+             arr.push(curr);
+         }
+    }
+    return arr
+}
+
 /* eslint-disable no-undef */
 
 
@@ -237,6 +257,17 @@ function createAnimaticSeq (seqInfo) {
     return seq
 }
 
+function createShotSupers (info) {
+    var seq = app.project.activeSequence;
+    if (!seq) return false;
+    markers = markersToArr(seq.markers);
+
+    return JSON.stringify(markers)
+
+    // var mogrtPath = joinPath([info.extPath], 'mogrt', 'super.mogrt');
+    // var mogrt = new File(mogrtPath);
+}
+
 // import { 
 //     findProjItemByNodeId, 
 //     findProjItemByName ,
@@ -267,6 +298,15 @@ function assembleAnimaticSeq(seqInfo) {
     var animatic = createAnimaticSeq(seqInfo);
 
     return JSON.stringify(animatic)
+}
+
+function createSupers(info) {
+    var markers = createShotSupers();
+    return markers
+}
+
+function getNumberOfVideoTracks() {
+    return getNumberOfVidTracks()
 }
 
 
