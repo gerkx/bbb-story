@@ -4,6 +4,7 @@ const path = cep_node.require('path');
 
 import { storySeq } from './xml';
 import { locateFiles } from './fileIO'
+import { generateId } from './id';
 
 
 export const getSequences = () => {
@@ -127,20 +128,14 @@ export const createNonLinealClips = (clipArr, linealSeq, xmlPath) => {
 }
 
 export const createAnimaticSeq = (xmlPath, vidPath, linealSeq, seqName) => {
-    console.log(linealSeq)
     const { linealChunks, nonLinealChunks } = createChunks(xmlPath, linealSeq)
 
     const linealClips = createLinealClips(linealChunks, linealSeq);
     const nonLinealClips = createNonLinealClips(nonLinealChunks, linealSeq, xmlPath);
     
-    console.log(linealClips)
-    console.log(nonLinealClips)
-    
     const numOfTracks = [...linealClips, ...nonLinealClips].map(x=>x.track.idx)
         .sort((a,b)=>a-b).reverse()[0] + 1;
 
-    const tempId = "aaa";
-    console.log(storySeq(xmlPath))
     const seqInfo = JSON.stringify({
         audio: {
             clips: [...linealClips, ...nonLinealClips],
@@ -151,16 +146,10 @@ export const createAnimaticSeq = (xmlPath, vidPath, linealSeq, seqName) => {
             clips: storySeq(xmlPath).video
         },
         name: seqName,
-        id: tempId
+        id: generateId()
     })
 
     console.log(JSON.parse(seqInfo))
-    // cs.addEventListener('boop', function(evt) {
-    //     console.log(evt)
-    // });
-    // cs.evalScript(`testAssemble()`, function(payload) {
-    //     console.log(payload)
-    // })
     cs.evalScript(`assembleAnimaticSeq(${seqInfo})`, function(payload) {
         console.log(JSON.parse(payload))
     })

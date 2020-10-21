@@ -146,16 +146,23 @@ export default {
         toggleLinealSequenceLoading() {
             this.linealSequenceLoading = !this.linealSequenceLoading;
         },
+        test() {
+            console.log(this.linealSequence)
+            const p = "F:/story/MM_138_cajas_de_Carton_Cl_v1.xml";
+            const vid = "F:\\story\\MM_138_CajasdeCarton_Cl_V2_low.mov"
+            createAnimaticSeq(p, vid, this.linealSequence)
+        },
         createAnimatic(seqName) {
-            this.toggleAnimaticSequenceNameModal()
             this.animaticSequenceName = seqName
+            const xmlPath = this.xmlPath.split("/").join(path.sep)
+            const videoPath = this.videoPath.split("/").join(path.sep)
+            this.toggleAnimaticSequenceNameModal()
             createAnimaticSeq(
-                this.xmlPath, 
-                this.videoPath, 
+                xmlPath, 
+                videoPath, 
                 this.linealSequence, 
-                this.animaticSequenceName
+                seqName
             )
-            console.log(this.animaticSequenceName)
         },
         chooseXMLFile() {
             const xmlPath = chooseFile(['.xml', 'xml']);
@@ -189,12 +196,6 @@ export default {
             if (linealSeq) this.linealSequence = linealSeq;
             this.toggleLinealSequenceModal();
         },
-        test() {
-            console.log(this.linealSequence)
-            const p = "F:/story/MM_138_cajas_de_Carton_Cl_v1.xml";
-            const vid = "F:\\story\\MM_138_CajasdeCarton_Cl_V2_low.mov"
-            createAnimaticSeq(p, vid, this.linealSequence)
-        }
     }
     
 }

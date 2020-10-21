@@ -5,9 +5,7 @@ export function findProjItemByNodeId(nodeId) {
     return search(projItems, nodeId);
 
     function search(projItem, id) {
-        // var PROJECT_ITEM_CLIP = 1;
         var PROJECT_ITEM_BIN = 2;
-        
         for (var i = 0; i < projItem.numItems; i++) {
             var item = projItem[i];
             if (item.type == PROJECT_ITEM_BIN) {
@@ -23,13 +21,14 @@ export function findProjItemByNodeId(nodeId) {
 }
 
 export function findProjItemByName(name) {
-    var baseName = name.split('.')[0]
     var projItems = app.project.rootItem.children;
-    return search(projItems, baseName);
-
+    return search(projItems, name);
+    
     function search(projItem, clipName) {
-        // var PROJECT_ITEM_CLIP = 1;
         var PROJECT_ITEM_BIN = 2;
+        var baseName = clipName.split('.');
+        baseName.pop()
+        baseName.join('.')
         
         for (var i = 0; i < projItem.numItems; i++) {
             var item = projItem[i];
@@ -37,7 +36,7 @@ export function findProjItemByName(name) {
                 var found = search(item.children, clipName)
                 if (found) return found
             } else {
-                if (item.name === clipName) {
+                if (item.name === clipName || item.name === baseName) {
                     return item
                 }
             }
@@ -46,16 +45,15 @@ export function findProjItemByName(name) {
 }
 
 export function findProjItemByPath(mediaPath) {
-    // var baseName = name.split('.')[0]
     var projItems = app.project.rootItem.children;
     return search(projItems, mediaPath);
 
     function search(projItem, mediaPath) {
-        // var PROJECT_ITEM_CLIP = 1;
         var PROJECT_ITEM_BIN = 2;
         
         for (var i = 0; i < projItem.numItems; i++) {
             var item = projItem[i];
+            
             if (item.type == PROJECT_ITEM_BIN) {
                 var found = search(item.children, mediaPath)
                 if (found) return found
@@ -72,6 +70,7 @@ export function findProjItem(clip) {
     var projItem = null;
     if ('projectItem' in clip) {
         projItem = findProjItemByNodeId(clip.projectItem.nodeId)
+
     } else {
         if ('file' in clip) projItem = findProjItemByName(clip.file.name);
     }

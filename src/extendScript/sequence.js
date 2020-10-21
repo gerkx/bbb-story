@@ -30,6 +30,7 @@ export function seqArr(seqColl) {
 }
 
 function addAudioClipsToSeq(seq, clipArr) {
+    
     for (var i = 0; i < clipArr.length; i++) {
         var clip = clipArr[i];
         var projItem = findProjItem(clip);

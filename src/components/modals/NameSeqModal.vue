@@ -78,7 +78,7 @@ export default {
             this.nameDirty = false;
         },
         ok() {
-            this.$emit('ok', this.name);
+            this.$emit('ok', this.formName);
             const base = this.linealName.split('lineal')[0]  
             this.name = `${base}animatic_v001`;
             this.nameDirty = false;
