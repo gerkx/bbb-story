@@ -21,11 +21,11 @@ export function joinPath(pathSectionArr) {
 
 export function padZero(num, zeros) {
     var base = ""
-    for (var i = 0; i < parseInt(zeros); i++) {
+    for (var i = 0; i < parseInt(zeros, 10); i++) {
         base += "0"
     }
     num = num.toString();
-    return (base + num).slice(-(parseInt(zeros)))
+    return (base + num).slice(-(parseInt(zeros, 10)))
   }
 
 export function pad2(num) {

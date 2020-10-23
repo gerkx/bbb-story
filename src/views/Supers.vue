@@ -5,7 +5,7 @@
                 <v-col class="pb-0">
                     <v-text-field 
                         v-model="program"
-                        label="programa"
+                        label="Programa"
                         :rules="[v => !!v || 'Hay que indicar la programa']"
                         required
                         dense
@@ -16,7 +16,7 @@
                 <v-col cols="6">
                     <v-text-field 
                         v-model="season"
-                        label="temporada"
+                        label="Temporada"
                         :rules="[v => !!v || 'Hay que indicar la temporada']"
                         required
                         dense
@@ -25,7 +25,7 @@
                 <v-col cols="6">
                     <v-text-field 
                         v-model="episode"
-                        label="episodio"
+                        label="Episodio"
                         :rules="[v => !!v || 'Hay que indicar el episodio']"
                         required
                         dense
@@ -37,8 +37,10 @@
                     <v-slider
                         v-model="target"
                         min="1"
+                        label="Pista"
                         :max="maxTrack"
                         thumb-label
+                        dense
                     />
                 </v-col>
                 <v-col cols="auto">

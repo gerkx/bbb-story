@@ -175,6 +175,36 @@ function importClip(clip) {
     return null
 }
 
+/* eslint-disable no-undef */
+function getSep() {
+    if(Folder.fs == 'Macintosh'){
+        return '/';
+    }else {
+        return '\\';
+    }
+}
+
+function joinPath(pathSectionArr) {
+    var path = "";
+    for (var i = 0; i < pathSectionArr.length; i++) {
+        if (i == 0) {
+            path += pathSectionArr[i];
+        } else {
+            path += getSep() + pathSectionArr[i];
+        }
+    }
+    return path
+}
+
+function padZero(num, zeros) {
+    var base = "";
+    for (var i = 0; i < parseInt(zeros, 10); i++) {
+        base += "0";
+    }
+    num = num.toString();
+    return (base + num).slice(-(parseInt(zeros, 10)))
+  }
+
 function markersToArr(markerColl) {
     var arr = [];
     var curr = null;
@@ -257,15 +287,72 @@ function createAnimaticSeq (seqInfo) {
     return seq
 }
 
+function createShotStr(info, marker) {
+    var shotNum = parseInt(marker.name, 10);
+    var seqNum = (Math.floor(shotNum / 100) + 1) * 10;
+    var shotStr = padZero(shotNum, 4);
+    var seqStr = padZero(seqNum, 4);
+    return info.program + "_S" + padZero(info.season, 2) +
+        "E" + padZero(info.episode, 2) + "_SQ" + seqStr + "_SH" + shotStr
+    
+}
+
 function createShotSupers (info) {
     var seq = app.project.activeSequence;
+    var seqEnd = new Time();
+    seqEnd.ticks = seq.end;
     if (!seq) return false;
+    
+    var mogrtPath = joinPath([info.extPath, 'mogrt', 'shotSuper_T02_v001.mogrt']);
+    var mogrt = new File(mogrtPath);
+    var importMogrtErr = false;
+    
     markers = markersToArr(seq.markers);
+    for (var i = 0; i < markers.length; i++) {
+        var marker = markers[i];
+        if (!isNaN(parseInt(marker.name, 10))) {
+            var seqMogrt = seq.importMGT(
+                mogrt.fsName, // mogrt file to import
+                marker.start.ticks, // sequence target time
+                info.target - 1, // target video track
+                0 // target audio track
+            );
+            if (seqMogrt) {
+                var shotDur = 0;
+                var shotEnd = new Time();
+                if (i === markers.length - 1) {
+                    shotEnd.seconds = seqEnd.seconds;
+                    shotDur = Math.round((seqEnd.seconds - marker.start.seconds) * 25);
+                } else {
+                    shotEnd.seconds = markers[i+1].start.seconds;
+                    shotDur = Math.round(
+                        (shotEnd.seconds - marker.start.seconds) * 25
+                    );
+                }
 
-    return JSON.stringify(markers)
+                seqMogrt.end = shotEnd;
+                var shotStr = createShotStr(info, marker);
 
-    // var mogrtPath = joinPath([info.extPath], 'mogrt', 'super.mogrt');
-    // var mogrt = new File(mogrtPath);
+                var mogrtComponent = seqMogrt.getMGTComponent();
+                if (mogrtComponent) {
+                    var props = mogrtComponent.properties;
+                    var shotProp = props.getParamForDisplayName('shot');
+                    if (shotProp) { shotProp.setValue(shotStr); }
+                    var durProp = props.getParamForDisplayName('dur');
+                    if (durProp) { durProp.setValue(padZero(shotDur, 4)); }
+                }
+            } else {
+                importMogrtErr = true;
+                break;
+            }
+        }
+    }
+    if (importMogrtErr) { alert('unable to import MOGRT file: ' + mogrt.fsName ); }
+    mogrt.close();
+
+    return true
+
+
 }
 
 // import { 
@@ -301,7 +388,7 @@ function assembleAnimaticSeq(seqInfo) {
 }
 
 function createSupers(info) {
-    var markers = createShotSupers();
+    var markers = createShotSupers(info);
     return markers
 }
 

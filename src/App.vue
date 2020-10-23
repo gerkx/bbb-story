@@ -37,7 +37,10 @@ export default {
     this.csInterface = new CSInterface();
     this.loadJSX('json.jsx');
     this.loadJSX('extendscript.jsx');
-    this.$router.push('supers')
+    // if (this.$router[0].toLowerCase() !== 'supers'){
+      
+    // }
+    this.$router.push('supers').catch(()=>{});
   },
 
   data: () => ({
