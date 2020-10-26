@@ -8,6 +8,11 @@ var ERR_NO_SEQUENCES = {
     message: "Project doesn't contain any sequences, create a sequence and try again"
 };
 
+var ERR_MOGRT_IMPORT = {
+    error: "ERR_MOGRT_IMPORT",
+    message: "Error importing MOGRT template"
+};
+
 /* eslint-disable no-undef */
 
 function clipObj(clip) {
@@ -340,6 +345,8 @@ function createShotSupers (info) {
                     if (shotProp) { shotProp.setValue(shotStr); }
                     var durProp = props.getParamForDisplayName('dur');
                     if (durProp) { durProp.setValue(padZero(shotDur, 4)); }
+
+                    marker.name = shotStr;
                 }
             } else {
                 importMogrtErr = true;
@@ -347,19 +354,13 @@ function createShotSupers (info) {
             }
         }
     }
-    if (importMogrtErr) { alert('unable to import MOGRT file: ' + mogrt.fsName ); }
+    if (importMogrtErr) return JSON.stringify(ERR_MOGRT_IMPORT)
     mogrt.close();
 
-    return true
+    return JSON.stringify(markers)
 
 
 }
-
-// import { 
-//     findProjItemByNodeId, 
-//     findProjItemByName ,
-// } from './clip';
-// import { clipObj } from './track';
 
 /* eslint-disable no-undef */
 
@@ -394,6 +395,19 @@ function createSupers(info) {
 
 function getNumberOfVideoTracks() {
     return getNumberOfVidTracks()
+}
+
+function exportClip() {
+//     // var seq = app.project.activeSequence;
+//     // if (!seq) return JSON.stringify(ERR_NO_ACTIVE_SEQUENCE)
+
+
+//     // var presetPath = joinPath([ext, 'epr', 'sommelierAIFF.epr']);
+//     // var preset = new File(presetPath);
+
+    // return app.project.exportTimeline("SDK Export Controller")
+
+    alert("x");
 }
 
 

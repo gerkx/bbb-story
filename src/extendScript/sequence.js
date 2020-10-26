@@ -1,5 +1,9 @@
 /* eslint-disable no-undef */
 
+import {
+    ERR_MOGRT_IMPORT
+} from './errors'
+
 import { trackArr, addMissingAudioTracks } from './track';
 import { findProjItem,  } from './clip'
 import { joinPath, padZero } from './util'
@@ -123,6 +127,8 @@ export function createShotSupers (info) {
                     if (shotProp) { shotProp.setValue(shotStr) }
                     var durProp = props.getParamForDisplayName('dur');
                     if (durProp) { durProp.setValue(padZero(shotDur, 4)) }
+
+                    marker.name = shotStr
                 }
             } else {
                 importMogrtErr = true;
@@ -130,10 +136,10 @@ export function createShotSupers (info) {
             }
         }
     }
-    if (importMogrtErr) { alert('unable to import MOGRT file: ' + mogrt.fsName ) }
+    if (importMogrtErr) return JSON.stringify(ERR_MOGRT_IMPORT)
     mogrt.close()
 
-    return true
+    return JSON.stringify(markers)
 
 
 }

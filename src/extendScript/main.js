@@ -1,17 +1,14 @@
 import {
     ERR_NO_PROJECT,
     ERR_NO_SEQUENCES,
+    ERR_NO_ACTIVE_SEQUENCE,
 } from './errors'
 
 import { seqArr, createAnimaticSeq, createShotSupers } from './sequence';
 
 import {getNumberOfVidTracks } from './track'
 
-// import { 
-//     findProjItemByNodeId, 
-//     findProjItemByName ,
-// } from './clip';
-// import { clipObj } from './track';
+import {joinPath} from './util'
 
 /* eslint-disable no-undef */
 
@@ -46,4 +43,17 @@ export function createSupers(info) {
 
 export function getNumberOfVideoTracks() {
     return getNumberOfVidTracks()
+}
+
+export function exportClip() {
+//     // var seq = app.project.activeSequence;
+//     // if (!seq) return JSON.stringify(ERR_NO_ACTIVE_SEQUENCE)
+
+
+//     // var presetPath = joinPath([ext, 'epr', 'sommelierAIFF.epr']);
+//     // var preset = new File(presetPath);
+
+    // return app.project.exportTimeline("SDK Export Controller")
+
+    alert("x")
 }

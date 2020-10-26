@@ -6,9 +6,10 @@
       dense
       dark
     >
-      <v-tabs v-model="tabs" color="white">
+      <v-tabs v-model="tab" color="white">
         <v-tab key="import" to="/import">Import</v-tab>
         <v-tab key="supers" to="/supers">Supers</v-tab>
+        <v-tab key="export" to="/export">Export</v-tab>
       </v-tabs>
       <v-spacer></v-spacer>
       <v-btn icon @click="reload">
@@ -37,10 +38,8 @@ export default {
     this.csInterface = new CSInterface();
     this.loadJSX('json.jsx');
     this.loadJSX('extendscript.jsx');
-    // if (this.$router[0].toLowerCase() !== 'supers'){
-      
-    // }
-    this.$router.push('supers').catch(()=>{});
+    this.$router.push('export').catch(()=>{});
+    // window.addEventListener('focus', this.focus);
   },
 
   data: () => ({
@@ -57,6 +56,9 @@ export default {
         // eslint-disable-next-line no-undef
         this.csInterface.evalScript(`$.evalFile('${this.csInterface.getSystemPath(SystemPath.EXTENSION)}/jsx/${filename}')`);
     },
+    focus() {
+      console.log(this.$route.name)
+    }
   }
 };
 </script>

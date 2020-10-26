@@ -94,7 +94,6 @@ export default {
         },
     },
     mounted() {
-        console.log("mounted")
         this.getNumTracks()
         window.addEventListener('focus', this.focus);
         const superStore = localStorage.getItem('superStore');
@@ -135,13 +134,16 @@ export default {
                     this.targetTrackModel = trks
                 }
             }
-            console.log(this.numTracks)
         },
         async focus() {
-            console.log('focused')
-            const trks = await getNumberOfVideoTracks();
-            if (trks) {
-                this.numTracks = trks
+            const routeName = this.$route.name.toLowerCase()
+            if (routeName == 'supers'){
+                console.log('route: ' + this.$route.name)
+                const trks = await getNumberOfVideoTracks();
+                if (trks) {
+                    this.numTracks = trks
+                }
+
             }
         },
     }

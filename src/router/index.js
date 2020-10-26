@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 // import Home from '../views/Home.vue'
 import Import from '../views/Import';
 import Supers from '../views/Supers';
+import Export from '../views/Export';
 
 
 Vue.use(VueRouter)
@@ -17,6 +18,11 @@ const routes = [
     path: '/supers',
     name: 'Supers',
     component: Supers
+  },
+  {
+    path: '/export',
+    name: 'Export',
+    component: Export
   },
 
   {

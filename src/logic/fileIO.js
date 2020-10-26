@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+const cs = new CSInterface();
 const fs = cep_node.require('fs');
 const path = cep_node.require('path');
 
@@ -8,7 +9,7 @@ export const chooseFile = (extArr=[]) => {
         false,
         "Cargar una secuencia en XML",
         '',
-        extArr
+        extArr.join(' ')
     ];
     const loc = window.cep.fs.showOpenDialog(...opts)
     if (loc.err !== 0) return console.log('oops');
@@ -56,4 +57,16 @@ export const locateFiles = (xmlPath, clipArr) => {
     }
 
     return linkedClips.filter(clip => clip.file.path)
+}
+
+export const getPresets = () => {
+    const extPath = cs.getSystemPath(SystemPath.EXTENSION);
+    const presetPath = path.join(extPath, 'epr');
+    const presets = fs.readdirSync(presetPath);
+    const multiChan = presets.find(x=> x=="ProRes422_14Ch.epr");
+    return {
+        path: presetPath,
+        presets: presets,
+        model: multiChan
+    }
 }

@@ -3,7 +3,7 @@ const cs = new CSInterface();
 const path = cep_node.require('path');
 
 import { storySeq } from './xml';
-import { locateFiles } from './fileIO'
+import { locateFiles, getPresets } from './fileIO'
 import { generateId } from './id';
 
 
@@ -174,4 +174,9 @@ export const getNumberOfVideoTracks = () => {
             else { return resolve(res) }
         })
     })
+}
+
+export const exportClip = () => {
+    console.log(getPresets())
+    // cs.evalScript('exportClip()')
 }
