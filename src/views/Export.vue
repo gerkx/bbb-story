@@ -1,12 +1,13 @@
 <template>
     <v-container>
-        <v-btn @click="test">test</v-btn>
-        <v-row>
+        <v-row class="mb-2 px-2">
             <v-col>
                 <v-select
                     v-model="presetModel"
                     :items="presetOptions"
                     label="preset"
+                    hide-details
+                    dense
                 />
             </v-col>
         </v-row>
@@ -14,10 +15,22 @@
                 <v-btn 
                     class="picker" 
                     block
+                    :color="pathBtnColor"
                     @click="chooseExportPath"
                 >
-                    <v-icon class="pr-2">mdi-content-save</v-icon>
+                    <v-icon class="pr-2">mdi-folder-open</v-icon>
                     <span>{{ exportPathBtn }}</span>
+                </v-btn>
+            </v-row>
+        <v-row class="mb-2 px-2">
+                <v-btn 
+                    class="picker" 
+                    block
+                    @click="exportShots"
+                    :disabled="exportDisabled"
+                >
+                    <v-icon class="pr-2">mdi-content-save</v-icon>
+                    <span>Export</span>
                 </v-btn>
             </v-row>
     </v-container>
@@ -27,9 +40,11 @@
 
 // eslint-disable-next-line no-undef
 const path = cep_node.require('path')
+// eslint-disable-next-line no-undef
+const fs = cep_node.require('fs')
 
-import { getPresets } from '../logic/fileIO'
-// import {exportClip} from '../logic/premiereSeq'
+import { getPresets } from '../logic/fileIO';
+import { exportShots } from '../logic/premiereSeq';
 
 export default {
     name: 'Export',
@@ -44,7 +59,7 @@ export default {
             this.presetModel = this.presets.model
         }
         const prevExport = localStorage.getItem('animaticExportPath');
-        if (prevExport && !this.exportPath) {
+        if (prevExport && !this.exportPath && fs.existsSync(prevExport)) {
             this.exportPath = prevExport
         }
     },
@@ -53,8 +68,22 @@ export default {
             return this.presets.presets ? this.presets.presets : []
         },
         exportPathBtn() {
-            if (this.exportPath) return this.exportPath
-            return 'Elegir una ruta de exportar'
+            if (!this.exportPath) return 'Elegir una ruta de exportar'
+            let pathTxt = this.exportPath
+            if (this.exportPath.length > 59) {
+                let pathParts = pathTxt.split('\\');
+                console.log(pathParts)
+                pathParts.splice(2, pathParts.length-3, "...")
+                console.log(pathParts)
+                pathTxt = pathParts.join("\\")
+            }
+            return pathTxt
+        },
+        pathBtnColor() {
+            return this.exportPath ? 'green' : 'grey'
+        },
+        exportDisabled() {
+            return !this.presetModel || !this.exportPath ? true : false;
         },
     },
     methods: {
@@ -81,7 +110,14 @@ export default {
                 this.exportPath = sepPath
                 return sepPath
             }
-        }
+        },
+        async exportShots() {
+            const presetPath = path.join(this.presets.path, this.presetModel)
+            const exportedShots = exportShots(presetPath, this.exportPath)
+            if (exportedShots) {
+                console.log(exportedShots)
+            }
+        },
     }
 }
 </script>

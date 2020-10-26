@@ -9,7 +9,7 @@ export const chooseFile = (extArr=[]) => {
         false,
         "Cargar una secuencia en XML",
         '',
-        extArr.join(' ')
+        extArr
     ];
     const loc = window.cep.fs.showOpenDialog(...opts)
     if (loc.err !== 0) return console.log('oops');
