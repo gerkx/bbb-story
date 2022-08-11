@@ -8,7 +8,11 @@ import { seqArr, createAnimaticSeq, createShotSupers } from './sequence';
 
 import {getNumberOfVidTracks } from './track'
 
-import {joinPath} from './util'
+import { markersToArr } from './markers'
+
+import { joinPath } from './util'
+
+// import {joinPath} from './util'
 
 /* eslint-disable no-undef */
 
@@ -45,15 +49,46 @@ export function getNumberOfVideoTracks() {
     return getNumberOfVidTracks()
 }
 
-export function exportClip() {
-//     // var seq = app.project.activeSequence;
-//     // if (!seq) return JSON.stringify(ERR_NO_ACTIVE_SEQUENCE)
+export function exportClips(obj) {
+    var jobIds = [];
+    var seq = app.project.activeSequence;
+    if (!seq) return JSON.stringify(ERR_NO_ACTIVE_SEQUENCE);
 
+    var preset = new File(obj.preset);
+    var shotPath = new File(obj.shotPath);
+    var ext = seq.getExportFileExtension(preset.fsName);
 
-//     // var presetPath = joinPath([ext, 'epr', 'sommelierAIFF.epr']);
-//     // var preset = new File(presetPath);
+    var markers = markersToArr(seq.markers);
+    for (var i = 0; i < markers.length; i++) {
+        var marker = markers[i];
 
-    // return app.project.exportTimeline("SDK Export Controller")
+        var shot = joinPath([shotPath.fsName, marker.name + '.' + ext]);
 
-    alert("x")
+        var out = new Time();
+        if (i == markers.length - 1) {
+            out.ticks = seq.end;
+        } else {
+            out.ticks = markers[i+1].start.ticks
+        }
+        seq.setInPoint(marker.start.ticks);
+        seq.setOutPoint(out.ticks);
+
+        var job = app.encoder.encodeSequence(
+            seq, // seq to render from
+            shot, // output path
+            preset.fsName, // preset path
+            1, // encode in to out
+            0 // don't remove from ame
+        )
+        if (job) { 
+            jobIds.push({name: marker.name, job:job}) 
+        }
+
+        
+    }
+    shotPath.close()
+    preset.close()
+
+    return jobIds
 }
+

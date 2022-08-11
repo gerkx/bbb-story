@@ -20,7 +20,7 @@
 		<Extension Id="com.gerkx.bbb-story.extension1">
 			<DispatchInfo >
 				<Resources>
-                    <MainPath>./index-dev.html</MainPath>
+                    <MainPath>./index.html</MainPath>
 					<ScriptPath>./jsx/extendscript.jsx</ScriptPath>
                     <CEFCommandLine>
 						<Parameter>--enable-speech-input</Parameter>

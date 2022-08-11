@@ -8,6 +8,11 @@ var ERR_NO_SEQUENCES = {
     message: "Project doesn't contain any sequences, create a sequence and try again"
 };
 
+var ERR_NO_ACTIVE_SEQUENCE = {
+    error: "ERR_NO_ACTIVE_SEQUENCE",
+    message: "Project doesn't have an active sequence to export. Open a sequence and try again."
+};
+
 var ERR_MOGRT_IMPORT = {
     error: "ERR_MOGRT_IMPORT",
     message: "Error importing MOGRT template"
@@ -211,6 +216,7 @@ function padZero(num, zeros) {
   }
 
 function markersToArr(markerColl) {
+    // alert(markerColl.numMarkers)
     var arr = [];
     var curr = null;
     for (var i = 0; i < markerColl.numMarkers; i++) {
@@ -258,9 +264,11 @@ function addAudioClipsToSeq(seq, clipArr) {
     for (var i = 0; i < clipArr.length; i++) {
         var clip = clipArr[i];
         var projItem = findProjItem(clip);
+        var inPt = (254016000000 * clip.inPoint).toString();
+        var outPt = (254016000000 * clip.outPoint).toString();
         if (projItem) {
-            projItem.setInPoint(clip.inPoint);
-            projItem.setOutPoint(clip.outPoint);
+            projItem.setInPoint(inPt, 4);
+            projItem.setOutPoint(outPt, 4);
             seq.audioTracks[clip.track.idx].overwriteClip(projItem, clip.start);
         }
     }
@@ -271,8 +279,10 @@ function addVideoClipsToSeq(seq, vidObj) {
     if (projItem){
         for (var i = 0; i < vidObj.clips.length; i++) {
             var clip = vidObj.clips[i];
-            projItem.setInPoint(clip.in);
-            projItem.setOutPoint(clip.out);
+            var inPt = (254016000000 * clip.in).toString();
+            var outPt = (254016000000 * clip.out).toString();
+            projItem.setInPoint(inPt, 4);
+            projItem.setOutPoint(outPt, 4);
             seq.videoTracks[0].overwriteClip(projItem, clip.start);
             var audioClipIdx = seq.audioTracks[0].clips.numItems - 1;
             seq.audioTracks[0].clips[audioClipIdx].remove(true, true);
@@ -284,12 +294,17 @@ function addVideoClipsToSeq(seq, vidObj) {
 }
 
 function createAnimaticSeq (seqInfo) {
-    var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
-    addVideoClipsToSeq(seq, seqInfo.video);
-    var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.audio.numTracks);
-    if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.audio.clips);
-
-    return seq
+    try {
+        var seq = app.project.createNewSequence(seqInfo.name, seqInfo.id);
+        addVideoClipsToSeq(seq, seqInfo.video);
+        var enoughAudioTracks = addMissingAudioTracks(seq, seqInfo.audio.numTracks);
+        if (enoughAudioTracks) addAudioClipsToSeq(seq, seqInfo.audio.clips);
+    
+        return seq
+    }
+    catch(e){
+        alert("name: " + e.name + "\ndesc: " + e.message + "\nfile: " + e.fileName + "\nline: " + e.line)
+    }
 }
 
 function createShotStr(info, marker) {
@@ -307,12 +322,12 @@ function createShotSupers (info) {
     var seqEnd = new Time();
     seqEnd.ticks = seq.end;
     if (!seq) return false;
-    
     var mogrtPath = joinPath([info.extPath, 'mogrt', 'shotSuper_T02_v001.mogrt']);
     var mogrt = new File(mogrtPath);
     var importMogrtErr = false;
     
-    markers = markersToArr(seq.markers);
+    var markers = markersToArr(seq.markers);
+    // alert(JSON.stringify(markers))
     for (var i = 0; i < markers.length; i++) {
         var marker = markers[i];
         if (!isNaN(parseInt(marker.name, 10))) {
@@ -359,8 +374,9 @@ function createShotSupers (info) {
 
     return JSON.stringify(markers)
 
-
 }
+
+// import {joinPath} from './util'
 
 /* eslint-disable no-undef */
 
@@ -397,17 +413,47 @@ function getNumberOfVideoTracks() {
     return getNumberOfVidTracks()
 }
 
-function exportClip() {
-//     // var seq = app.project.activeSequence;
-//     // if (!seq) return JSON.stringify(ERR_NO_ACTIVE_SEQUENCE)
+function exportClips(obj) {
+    var jobIds = [];
+    var seq = app.project.activeSequence;
+    if (!seq) return JSON.stringify(ERR_NO_ACTIVE_SEQUENCE);
 
+    var preset = new File(obj.preset);
+    var shotPath = new File(obj.shotPath);
+    var ext = seq.getExportFileExtension(preset.fsName);
 
-//     // var presetPath = joinPath([ext, 'epr', 'sommelierAIFF.epr']);
-//     // var preset = new File(presetPath);
+    var markers = markersToArr(seq.markers);
+    for (var i = 0; i < markers.length; i++) {
+        var marker = markers[i];
 
-    // return app.project.exportTimeline("SDK Export Controller")
+        var shot = joinPath([shotPath.fsName, marker.name + '.' + ext]);
 
-    alert("x");
+        var out = new Time();
+        if (i == markers.length - 1) {
+            out.ticks = seq.end;
+        } else {
+            out.ticks = markers[i+1].start.ticks;
+        }
+        seq.setInPoint(marker.start.ticks);
+        seq.setOutPoint(out.ticks);
+
+        var job = app.encoder.encodeSequence(
+            seq, // seq to render from
+            shot, // output path
+            preset.fsName, // preset path
+            1, // encode in to out
+            0 // don't remove from ame
+        );
+        if (job) { 
+            jobIds.push({name: marker.name, job:job}); 
+        }
+
+        
+    }
+    shotPath.close();
+    preset.close();
+
+    return jobIds
 }
 
 

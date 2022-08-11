@@ -157,6 +157,7 @@ export const createAnimaticSeq = (xmlPath, vidPath, linealSeq, seqName) => {
 
 export const createSupers = (payload) => {
     const extPath = cs.getSystemPath(SystemPath.EXTENSION);
+    console.log(extPath)
     return new Promise((resolve, reject) => {
         cs.evalScript(`createSupers(${JSON.stringify(
             {...payload, extPath: extPath}
@@ -177,9 +178,9 @@ export const getNumberOfVideoTracks = () => {
 }
 
 export const exportShots = (presetPath, exportPath) => {
-    const payload = JSON.stringify({ preset:presetPath, export: exportPath });
+    const payload = JSON.stringify({ preset:presetPath, shotPath: exportPath });
     return new Promise((resolve, reject) => {
-        cs.evalScript(`exportShots(${payload})`, function(res) {
+        cs.evalScript(`exportClips(${payload})`, function(res) {
             const data = JSON.parse(res);
             if (data.error) { return reject(data)}
             else { return resolve(data) }

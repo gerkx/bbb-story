@@ -1,7 +1,8 @@
 /* eslint-disable no-undef */
 
 import {
-    ERR_MOGRT_IMPORT
+    ERR_MOGRT_IMPORT, 
+    // ERR_NO_ACTIVE_SEQUENCE
 } from './errors'
 
 import { trackArr, addMissingAudioTracks } from './track';
@@ -89,12 +90,12 @@ export function createShotSupers (info) {
     var seqEnd = new Time()
     seqEnd.ticks = seq.end;
     if (!seq) return false;
-    
     var mogrtPath = joinPath([info.extPath, 'mogrt', 'shotSuper_T02_v001.mogrt']);
     var mogrt = new File(mogrtPath);
     var importMogrtErr = false
     
-    markers = markersToArr(seq.markers);
+    var markers = markersToArr(seq.markers);
+    // alert(JSON.stringify(markers))
     for (var i = 0; i < markers.length; i++) {
         var marker = markers[i];
         if (!isNaN(parseInt(marker.name, 10))) {
@@ -141,5 +142,7 @@ export function createShotSupers (info) {
 
     return JSON.stringify(markers)
 
-
 }
+
+
+

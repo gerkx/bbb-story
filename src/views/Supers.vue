@@ -53,6 +53,7 @@
                     <span color="" class="px-2">Supers</span>
                 </v-btn>
             </v-row>
+            
 
         </v-form>
     </v-container>
@@ -110,11 +111,13 @@ export default {
     },
     methods: {
         setLocalStore() {
-            localStorage.setItem('superStore', JSON.stringify({
+            const obj = {
                 program: this.program,
                 season: this.season,
                 episode: this.episode,
-            }))
+            }
+            localStorage.setItem('superStore', JSON.stringify(obj))
+            // console.log(obj)
         },
         async makeSupers() {
             this.setLocalStore();

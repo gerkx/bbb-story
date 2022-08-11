@@ -158,15 +158,15 @@ export default {
             )
         },
         chooseXMLFile() {
-            const xmlPath = chooseFile(['.xml', 'xml']);
+            const xmlPath = chooseFile(['xml']);
             if (xmlPath && path.extname(xmlPath) === '.xml'){
                 this.xmlPath = xmlPath
             }
         },
         chooseVideoFile() {
-            const ext = ['.mp4', '.mov', '.m4v']
+            const ext = ['mp4', 'mov', 'm4v']
             const vidPath = chooseFile(ext)
-            if (vidPath &&  ext.includes(path.extname(vidPath))){
+            if (vidPath &&  ext.map(x=>`.${x}`).includes(path.extname(vidPath))){
                 this.videoPath = vidPath
             }
         },

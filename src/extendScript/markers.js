@@ -1,4 +1,5 @@
 export function markersToArr(markerColl) {
+    // alert(markerColl.numMarkers)
     var arr = [];
     var curr = null;
     for (var i = 0; i < markerColl.numMarkers; i++) {
